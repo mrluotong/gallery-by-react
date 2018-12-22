@@ -5,7 +5,7 @@ let imageDatas = require('../data/imageDatas.json');
 //利用自执行函数 把图片名转成图片URL
 imageDatas = (function genImageURL(imageDatasArr){
   for(var i=0;i<imageDatasArr.length;i++){
-    singleImageData = imageDatasArr[i];
+    let singleImageData = imageDatasArr[i];
     singleImageData.imageURL = require('../images/'+singleImageData.fileName);
     imageDatasArr[i] = singleImageData;
   }
