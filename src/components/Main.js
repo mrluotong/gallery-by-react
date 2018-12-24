@@ -12,15 +12,38 @@ imageDatas = (function genImageURL(imageDatasArr){
   return imageDatasArr;
 })(imageDatas);
 
-import React from 'react';
+console.log(imageDatas);
 
+import React from 'react';
+var ImgFigure=React.createClass({
+  render(){
+    return (
+        <figure>
+          <img src={this.props.data.imageURL} alt={this.props.data.title}/>
+          <figcaption>
+            <h2>{this.props.data.title}</h2>
+          </figcaption>
+        </figure>
+      );
+  }
+});
 
 class AppComponent extends React.Component {
   render() {
+    let controllerUnits = [],
+        imgFigures = [];
+
+    imageDatas.forEach(function(value,i){
+      imgFigures.push(<ImgFigure key={i} data={value}/>);
+    });
     return (
       <section className="stage">
-        <section className="img-sec"></section>
-        <nav className="control-nav"></nav>
+        <section className="img-sec">
+          {imgFigures}
+        </section>
+        <nav className="control-nav">
+          {controllerUnits}
+        </nav>
       </section>
     );
   }
