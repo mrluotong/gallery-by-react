@@ -17,12 +17,21 @@ imageDatas = (function genImageURL(imageDatasArr){
 function getRangeRandom(low,high){
   return Math.ceil(Math.random() * (high-low) + low);
 }
+function get30DegRandom(){
+  return ((Math.random() > 0.5?'':'-')+Math.ceil(Math.random() * 30));
+}
 class ImgFigure extends React.Component{
   render(){
     let styleObj = {};
     //如果props属性中指定了这张图片的位置，则使用
     if(this.props.arrange.pos){
       styleObj = this.props.arrange.pos;
+    }
+    //如果旋转角度不为0，则添加旋转角度
+    if (this.props.arrange.rotate) {
+      (['MozTransform', 'msTransform', 'WebkitTransform', '']).forEach((value) => {
+        styleObj[value] = 'rotate('+ this.props.arrange.rotate + 'deg)';
+      });
     }
     return (
         <figure className="img-figure"  style={styleObj}>
@@ -58,7 +67,8 @@ class AppComponent extends React.Component {
         pos: {
           left: 0,
           top: 0
-        }
+        },
+        rotate:0 //表示图片的旋转角度
       }]
     }
   /**
@@ -82,14 +92,19 @@ rearrang(centerIndex){
       imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex,1);
       //首先居中 centerIndex 的图片
       imgsArrangeCenterArr[0].pos = this.Constent.centerPos;
+      //居中 centerIndex 的图片的旋转角度
+      imgsArrangeCenterArr[0].rotate = 0;
       //取出要布局上侧的图片的状态信息
       topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
       imgsArrangeTopArr = imgsArrangeArr.splice(topImgSpliceIndex,topImgNum);
       //布局位于上侧的图片
       imgsArrangeTopArr.forEach((value,index) => {
-        imgsArrangeTopArr[index].pos = {
-          top:getRangeRandom(vPosRangeTopY[0],vPosRangeTopY[1]),
-          left:getRangeRandom(vPosRangeX[0],vPosRangeX[1])
+        imgsArrangeTopArr[index] = {
+          pos:{
+            top:getRangeRandom(vPosRangeTopY[0],vPosRangeTopY[1]),
+            left:getRangeRandom(vPosRangeX[0],vPosRangeX[1])
+          },
+          rotate:get30DegRandom()
         }
       });
       //布局左右两侧的图片
@@ -103,9 +118,12 @@ rearrang(centerIndex){
         {
           hPosRangeLORX = hPosRangeRightSecX;
         }
-        imgsArrangeArr[i].pos = {
-          top:getRangeRandom(hPosRangeY[0],hPosRangeY[1]),
-          left:getRangeRandom(hPosRangeLORX[0],hPosRangeLORX[1])
+        imgsArrangeArr[i]= {
+          pos:{
+            top:getRangeRandom(hPosRangeY[0],hPosRangeY[1]),
+            left:getRangeRandom(hPosRangeLORX[0],hPosRangeLORX[1])
+          },
+          rotate:get30DegRandom()
         };
       }
     //如果上侧有图片则插入
@@ -116,6 +134,7 @@ rearrang(centerIndex){
     imgsArrangeArr.splice(centerIndex,0,imgsArrangeCenterArr[0]);
     //设置组件状态属性值 当这个值改变的时候 会重新渲染页面
     // this.state.imgsArrangeArr = imgsArrangeArr;
+    
     this.setState({
       imgsArrangeArr:imgsArrangeArr
     });
@@ -164,13 +183,14 @@ rearrang(centerIndex){
           pos:{
             left:0,
             top:0
-          }
+          },
+          rotate:0
         };
       }
       
       imgFigures.push(<ImgFigure key={i} data={value} ref={'imgFigure' + i} arrange={this.state.imgsArrangeArr[i]} />);
     });
-    console.log(this.state.imgsArrangeArr);
+    
     return (
       <section className="stage" ref="stage">
         <section className="img-sec">
