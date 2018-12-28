@@ -64,6 +64,19 @@ class ImgFigure extends React.Component{
   }
 }
 
+class ControllerUnits extends React.Component{
+  handleClick(){
+    return (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }
+  render(){
+    return (
+      <span className="controller-unit" onClick={this.handleClick}></span>
+    )
+  }
+}
 
 class AppComponent extends React.Component {
     Constent= {
@@ -231,6 +244,7 @@ rearrang(centerIndex){
       }
       
       imgFigures.push(<ImgFigure key={i} data={value} ref={'imgFigure' + i} arrange={this.state.imgsArrangeArr[i]} inverse={this.inverse(i)} center={this.center(i)} />);
+      controllerUnits.push(<ControllerUnits/>);
     });
     
     return (

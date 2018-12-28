@@ -49,7 +49,7 @@ function getDefaultModules() {
         loader:'json-loader'
       },
       {
-        test: /\.(mp4|ogg|svg)$/,
+        test: /\.(mp4|ogg|svg|eot|woff|ttf)$/,
         loader: 'file-loader'
       }
     ]
