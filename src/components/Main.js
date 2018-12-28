@@ -21,6 +21,18 @@ function get30DegRandom(){
   return ((Math.random() > 0.5?'':'-')+Math.ceil(Math.random() * 30));
 }
 class ImgFigure extends React.Component{
+  // imgFigure 的点击处理函数
+  handleClick = (e) => {
+    if(this.props.arrange.isCenter){
+      this.props.inverse();
+    }
+    else{
+      this.props.center();
+    }
+    
+    e.stopPropagation();
+    e.preventDefault();
+  }
   render(){
     let styleObj = {};
     //如果props属性中指定了这张图片的位置，则使用
@@ -33,11 +45,19 @@ class ImgFigure extends React.Component{
         styleObj[value] = 'rotate('+ this.props.arrange.rotate + 'deg)';
       });
     }
+    if(this.props.arrange.isCenter){
+      styleObj.zIndex = 11;
+    }
+    let imgFigureClassName = 'img-figure';
+        imgFigureClassName+= this.props.arrange.isInverse ? ' is-inverse':'';
     return (
-        <figure className="img-figure"  style={styleObj}>
+        <figure className={imgFigureClassName}  style={styleObj} onClick={this.handleClick}>
           <img src={this.props.data.imageURL} alt={this.props.data.title}/>
           <figcaption>
             <h2 className="img-title">{this.props.data.title}</h2>
+            <div className="img-back" onClick={this.handleClick}>
+              <p>{this.props.data.desc}</p>
+            </div>
           </figcaption>
         </figure>
       );
@@ -68,9 +88,25 @@ class AppComponent extends React.Component {
           left: 0,
           top: 0
         },
-        rotate:0 //表示图片的旋转角度
+        rotate:0, //表示图片的旋转角度
+        isInverse:false, //图片正反面
+        isCenter:false   //图片是否居中
       }]
     }
+inverse(index){
+  return () => {
+    let imgsArrangeArr = this.state.imgsArrangeArr;
+      imgsArrangeArr[index].isInverse = !imgsArrangeArr[index].isInverse;
+    this.setState({
+      imgsArrangeArr:imgsArrangeArr
+    });
+  }
+}
+center(index){
+  return () => {
+    this.rearrang(index);
+  }
+}
   /**
  * 随机重新布局所有图片
  * param centerIndex 指定居中排布哪个图片
@@ -91,9 +127,11 @@ rearrang(centerIndex){
       topImgSpliceIndex = 0,
       imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex,1);
       //首先居中 centerIndex 的图片
-      imgsArrangeCenterArr[0].pos = this.Constent.centerPos;
-      //居中 centerIndex 的图片的旋转角度
-      imgsArrangeCenterArr[0].rotate = 0;
+      imgsArrangeCenterArr[0] = {
+        pos:this.Constent.centerPos,
+        rotate:0, //居中 centerIndex 的图片的旋转角度
+        isCenter:true
+      }
       //取出要布局上侧的图片的状态信息
       topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
       imgsArrangeTopArr = imgsArrangeArr.splice(topImgSpliceIndex,topImgNum);
@@ -104,7 +142,8 @@ rearrang(centerIndex){
             top:getRangeRandom(vPosRangeTopY[0],vPosRangeTopY[1]),
             left:getRangeRandom(vPosRangeX[0],vPosRangeX[1])
           },
-          rotate:get30DegRandom()
+          rotate:get30DegRandom(),
+          isCenter:false
         }
       });
       //布局左右两侧的图片
@@ -123,7 +162,8 @@ rearrang(centerIndex){
             top:getRangeRandom(hPosRangeY[0],hPosRangeY[1]),
             left:getRangeRandom(hPosRangeLORX[0],hPosRangeLORX[1])
           },
-          rotate:get30DegRandom()
+          rotate:get30DegRandom(),
+          isCenter:false
         };
       }
     //如果上侧有图片则插入
@@ -184,11 +224,13 @@ rearrang(centerIndex){
             left:0,
             top:0
           },
-          rotate:0
+          rotate:0,
+          isInverse:false,
+          isCenter:false
         };
       }
       
-      imgFigures.push(<ImgFigure key={i} data={value} ref={'imgFigure' + i} arrange={this.state.imgsArrangeArr[i]} />);
+      imgFigures.push(<ImgFigure key={i} data={value} ref={'imgFigure' + i} arrange={this.state.imgsArrangeArr[i]} inverse={this.inverse(i)} center={this.center(i)} />);
     });
     
     return (
