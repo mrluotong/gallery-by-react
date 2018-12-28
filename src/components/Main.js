@@ -41,7 +41,7 @@ class ImgFigure extends React.Component{
     }
     //如果旋转角度不为0，则添加旋转角度
     if (this.props.arrange.rotate) {
-      (['MozTransform', 'msTransform', 'WebkitTransform', '']).forEach((value) => {
+      (['MozTransform', 'msTransform', 'WebkitTransform', 'transform']).forEach((value) => {
         styleObj[value] = 'rotate('+ this.props.arrange.rotate + 'deg)';
       });
     }
@@ -65,15 +65,29 @@ class ImgFigure extends React.Component{
 }
 
 class ControllerUnits extends React.Component{
-  handleClick(){
-    return (e) => {
+  handleClick = (e) => {
+      //如果点击的按钮相对应的图片是居中态的话则 翻转
+      if(this.props.arrange.isCenter){
+        this.props.inverse();
+      }
+      else
+      {
+        this.props.center();
+      }
       e.stopPropagation();
       e.preventDefault();
     }
-  }
   render(){
+    let controllerUnitClassName = 'controller-unit';
+    //如果按钮相对应的图片是居中态 则
+    if(this.props.arrange.isCenter){
+      controllerUnitClassName+=' is-center';
+      if(this.props.arrange.isInverse){
+        controllerUnitClassName+=' is-inverse';
+      }
+    }
     return (
-      <span className="controller-unit" onClick={this.handleClick}></span>
+      <span className={controllerUnitClassName} onClick={this.handleClick}></span>
     )
   }
 }
@@ -136,7 +150,7 @@ rearrang(centerIndex){
       vPosRangeTopY = vPosRange.topY,
 
       imgsArrangeTopArr = [],
-      topImgNum = Math.ceil(Math.random() * 2),//取一个或者不取
+      topImgNum = Math.floor(Math.random() * 2),//取一个或者不取
       topImgSpliceIndex = 0,
       imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex,1);
       //首先居中 centerIndex 的图片
@@ -187,7 +201,6 @@ rearrang(centerIndex){
     imgsArrangeArr.splice(centerIndex,0,imgsArrangeCenterArr[0]);
     //设置组件状态属性值 当这个值改变的时候 会重新渲染页面
     // this.state.imgsArrangeArr = imgsArrangeArr;
-    
     this.setState({
       imgsArrangeArr:imgsArrangeArr
     });
@@ -244,7 +257,7 @@ rearrang(centerIndex){
       }
       
       imgFigures.push(<ImgFigure key={i} data={value} ref={'imgFigure' + i} arrange={this.state.imgsArrangeArr[i]} inverse={this.inverse(i)} center={this.center(i)} />);
-      controllerUnits.push(<ControllerUnits/>);
+      controllerUnits.push(<ControllerUnits key={i} arrange={this.state.imgsArrangeArr[i]} inverse={this.inverse(i)} center={this.center(i)}/>);
     });
     
     return (
